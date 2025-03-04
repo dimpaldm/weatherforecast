@@ -2,7 +2,7 @@ from django.shortcuts import render
 import requests
 from .forms import CityForm
 
-API_KEY = "af3f8813a03a76a8dbd20a16bc94168a"
+API_KEY = "your_API"
 
 def get_countries():
     """Fetch all countries and their cities dynamically from API"""
