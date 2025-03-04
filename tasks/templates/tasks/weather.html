@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Weather Forecast</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Country Dropdown -->
+        <label for="country">Select Country:</label>
+        <select id="country" name="country">
+            <option value="">Choose a country</option>
+            {% for country in countries %}
+                <option value="{{ country.country }}">{{ country.country }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- City Dropdown (Will be filled dynamically) -->
+        <label for="city">Select City:</label>
+        <select id="city" name="city">
+            <option value="">Select a country first</option>
+        </select>
+
+        <button type="submit">Get Weather</button>
+    </form>
+
+    {% if weather_data %}
+        <h2>Weather in {{ weather_data.city }}</h2>
+        <p>Temperature: {{ weather_data.temperature }}°C</p>
+        <p>Description: {{ weather_data.description }}</p>
+        <img src="http://openweathermap.org/img/wn/{{ weather_data.icon }}.png" alt="Weather Icon">
+    {% endif %}
+
+    <script>
+        $(document).ready(function() {
+            $("#country").change(function() {
+                var selectedCountry = $(this).val();
+                $("#city").html('<option value="">Loading cities...</option>');
+
+                if (selectedCountry) {
+                    $.ajax({
+                        url: "https://countriesnow.space/api/v0.1/countries/cities",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ country: selectedCountry }),
+                        success: function(response) {
+                            $("#city").empty();
+                            if (response.data.length > 0) {
+                                $("#city").append('<option value="">Select a city</option>');
+                                response.data.forEach(function(city) {
+                                    $("#city").append('<option value="' + city + '">' + city + '</option>');
+                                });
+                            } else {
+                                $("#city").append('<option value="">No cities found</option>');
+                            }
+                        }
+                    });
+                } else {
+                    $("#city").html('<option value="">Select a country first</option>');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
